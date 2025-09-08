@@ -1,19 +1,32 @@
-# Use official PyTorch image with CUDA (if GPU needed)
-FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
+# Use a slim Python base instead of full CUDA image
+FROM python:3.10-slim
 
-# Set working directory
-WORKDIR /app
+# Prevent Python from writing .pyc files and buffering stdout
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install CPU-only PyTorch + torchvision
+# (use official pip wheels without CUDA)
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# Install other dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
+WORKDIR /app
 COPY . /app
 
-# Install Python dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-RUN pip install streamlit torchvision
-
-# Expose port for Streamlit
+# Expose Streamlit port
 EXPOSE 8501
 
-# Command to run app
+# Run the app
 CMD ["streamlit", "run", "dcgan_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
