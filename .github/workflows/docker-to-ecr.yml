@@ -20,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: us-east-1
 
       # Step 3: Create ECR repository if it doesn't exist
       - name: Create ECR repository
@@ -47,7 +47,7 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           IMAGE_NAME=dcgan-app
           IMAGE_TAG=latest
-          ECR_URI=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$IMAGE_NAME:$IMAGE_TAG
+          ECR_URI=$ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/$IMAGE_NAME:$IMAGE_TAG
           docker tag $IMAGE_NAME:$IMAGE_TAG $ECR_URI
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
 
